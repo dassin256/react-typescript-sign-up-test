@@ -46,6 +46,7 @@ input, select {
 }
 
 button {
+  background-color: antiquewhite;
   border: 0;
   padding: 10px 40px;
   margin-left: auto;
@@ -54,4 +55,13 @@ button {
   width: fit-content;
   line-height: 24px;
   font-size: 16px;
+  cursor: pointer;
+}
+button:hover {
+  background-color: aquamarine;
+}
+
+.error-message {
+  color: red;
+  text-align: left;
 }

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { getCities, getStates } from "../sevices/api";
+import InputEmail from "../components/InputEmail";
 
 interface State {
   state_name: string;
@@ -19,63 +21,24 @@ export default function SignUp() {
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchStates();
-    localStorage.setItem(
-      "accessToken",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfZW1haWwiOiJhc2tAdW5pdmVyc2FsLXR1dG9yaWFsLmNvbSIsImFwaV90b2tlbiI6IlQ2VlBOUmZXbkxFbmdsMHd2djctZ1d2Y09KRHFPSkptc3ZoNkNOdGo5a3p1Z1RSYkhvdXVET1NXeTdzYmJzdG5taDAifSwiZXhwIjoxNjg1MDUwNTM2fQ.vbcrQ0WOsjl3gCqg87DvVrpI66rYPvlvCfejdYnHAow"
-    );
+    (async function () {
+      localStorage.setItem(
+        "accessToken",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfZW1haWwiOiJhc2tAdW5pdmVyc2FsLXR1dG9yaWFsLmNvbSIsImFwaV90b2tlbiI6IlQ2VlBOUmZXbkxFbmdsMHd2djctZ1d2Y09KRHFPSkptc3ZoNkNOdGo5a3p1Z1RSYkhvdXVET1NXeTdzYmJzdG5taDAifSwiZXhwIjoxNjg1MDY0NDY2fQ.DGcBQp-ycdOineQVv9PVuYp9cI6Hy7OZUXUS0GBgmqA"
+      );
+      const data = await getStates("United States");
+      setStates(data);
+    })();
   }, []);
 
-  const fetchStates = async () => {
-    try {
-      const response = await fetch(
-        "https://www.universal-tutorial.com/api/states/United States",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            Accept: "application/json",
-          },
-        }
-      );
-      const data = await response.json();
-      setStates(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleStateChange = async (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const state = event.target.value;
-    setSelectedState(state);
-    fetchCities(state);
-  };
-
-  const fetchCities = async (stateName: string) => {
-    try {
-      const response = await fetch(
-        `https://www.universal-tutorial.com/api/cities/${encodeURIComponent(
-          states.find((state) => state.state_name === stateName)?.state_name ??
-            ""
-        )}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            Accept: "application/json",
-          },
-        }
-      );
-      const data = await response.json();
-      setCities(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleCityChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCity(event.target.value);
-  };
+  useEffect(() => {
+    (async function () {
+      if (selectedState) {
+        const data = await getCities(selectedState);
+        setCities(data);
+      }
+    })();
+  }, [selectedState]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -124,7 +87,9 @@ export default function SignUp() {
           <select
             id="state"
             value={selectedState ?? ""}
-            onChange={handleStateChange}
+            onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+              setSelectedState(event.target.value)
+            }
             required
           >
             <option value="">-- Select a state --</option>
@@ -140,7 +105,9 @@ export default function SignUp() {
           <select
             id="city"
             value={selectedCity ?? ""}
-            onChange={handleCityChange}
+            onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+              setSelectedCity(event.target.value)
+            }
             required
           >
             <option value="">-- Select a city --</option>
@@ -152,12 +119,15 @@ export default function SignUp() {
           </select>
         </div>
         <div className="form-group">
-          <label htmlFor="email">Email : </label>
-          <input
-            type="email"
+          <label htmlFor="email" style={{ marginTop: "-20px" }}>
+            Email :{" "}
+          </label>
+          <InputEmail
             id="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setEmail(e.target.value)
+            }
             required
           />
         </div>
